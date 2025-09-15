@@ -4,8 +4,8 @@ This is a FastAPI-based backend service that provides a streaming chat interface
 
 ## Prerequisites
 
-- Python 3.11 (matches the official course environment)
 - [`uv`](https://github.com/astral-sh/uv) package manager (`pip install uv`)
+- `uv` will provision Python 3.11 automatically for this project, so no separate interpreter installation is required
 - An OpenAI API key available as the `OPENAI_API_KEY` environment variable when you run the server
 
 ## Setup
@@ -24,7 +24,7 @@ uv sync
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 ```
 
-`uv` will create the `.venv` directory automatically on first sync.
+`uv` will create the `.venv` directory automatically on first sync and download Python 3.11 if it's not already available.
 
 ## Running the Server
 
