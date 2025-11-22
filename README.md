@@ -79,17 +79,17 @@ Got everything in place? Let's move on!
      cursor .
      ```
 
-4. Check out the existing backend code found in `/api/app.py`
+4. Check out the existing backend code found in `/api/index.py`
 
 </details>
 
 <details>
   <summary>⚙️ Backend Setup with uv</summary>
 
-1. Install the [`uv`](https://github.com/astral-sh/uv) package manager (`pip install uv`). `uv` will download and manage Python 3.11 for you the first time you run a project command.
-2. From the project root, install dependencies with `uv sync`. This creates `.venv/` (and fetches Python 3.11 automatically if needed).
+1. Install the [`uv`](https://github.com/astral-sh/uv) package manager (`pip install uv`). `uv` will download and manage Python 3.12 for you the first time you run a project command.
+2. From the project root, install dependencies with `uv sync`. This creates `.venv/` (and fetches Python 3.12 automatically if needed).
 3. Set your OpenAI API key in the shell before running the server, for example `export OPENAI_API_KEY=sk-...`.
-4. Start the backend directly from the project root with `uv run uvicorn api.app:app --reload` (or `uv run python api/app.py` for a one-off run).
+4. Start the backend directly from the project root with `uv run uvicorn api.index:app --reload`. The server will run on `http://localhost:8000` with auto-reload enabled for development.
 5. Additional backend details live in `api/README.md`.
 
 </details>

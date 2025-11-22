@@ -1,11 +1,11 @@
 # OpenAI Chat API Backend
 
-This is a FastAPI-based backend service that provides a streaming chat interface using OpenAI's API.
+This is a FastAPI-based backend service that provides a chat interface using OpenAI's API. The service acts as a supportive mental coach, helping users with stress, motivation, habits, and confidence.
 
 ## Prerequisites
 
 - [`uv`](https://github.com/astral-sh/uv) package manager (`pip install uv`)
-- `uv` will provision Python 3.11 automatically for this project, so no separate interpreter installation is required
+- `uv` will provision Python 3.12 automatically for this project, so no separate interpreter installation is required
 - An OpenAI API key available as the `OPENAI_API_KEY` environment variable when you run the server
 
 ## Setup
@@ -24,23 +24,29 @@ uv sync
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 ```
 
-`uv` will create the `.venv` directory automatically on first sync and download Python 3.11 if it's not already available.
+`uv` will create the `.venv` directory automatically on first sync and download Python 3.12 if it's not already available.
 
 ## Running the Server
 
 Start the FastAPI app with the dependencies managed by `uv`:
 
 ```bash
-uv run python api/app.py
+uv run uvicorn api.index:app --reload
 ```
 
-This runs the app with `uvicorn` on `http://localhost:8000`. To enable autoreload during development, use:
+This runs the app with `uvicorn` on `http://localhost:8000` with auto-reload enabled for development. The server will automatically restart when you make changes to the code.
+
+**Note:** Make sure the `OPENAI_API_KEY` environment variable is set in your shell before launching the server. You can set it with:
 
 ```bash
-uv run uvicorn api.app:app --reload
+export OPENAI_API_KEY=sk-your-key-here
 ```
 
-Both commands assume the `OPENAI_API_KEY` environment variable is set in the shell that launches the server.
+If you encounter an "Address already in use" error, you may need to kill existing processes on port 8000:
+
+```bash
+lsof -ti:8000 | xargs kill -9
+```
 
 ## API Endpoints
 
@@ -50,13 +56,22 @@ Both commands assume the `OPENAI_API_KEY` environment variable is set in the she
 - **Request Body**:
 ```json
 {
-    "developer_message": "string",
-    "user_message": "string",
-    "model": "gpt-4.1-mini",  // optional
-    "api_key": "your-openai-api-key"
+    "message": "string"
 }
 ```
-- **Response**: Streaming text response
+- **Response**: JSON object with the AI's reply:
+```json
+{
+    "reply": "string"
+}
+```
+
+The chat endpoint uses OpenAI's GPT-5 model with a supportive mental coach system prompt to provide helpful responses.
+
+### Root Endpoint
+- **URL**: `/`
+- **Method**: GET
+- **Response**: `{"status": "ok"}`
 
 ### Health Check
 - **URL**: `/api/health`
@@ -71,7 +86,7 @@ Once the server is running, you can access the interactive API documentation at:
 
 ## CORS Configuration
 
-The API is configured to accept requests from any origin (`*`). This can be modified in the `app.py` file if you need to restrict access to specific domains.
+The API is configured to accept requests from any origin (`*`). This can be modified in the `index.py` file if you need to restrict access to specific domains.
 
 ## Error Handling
 
@@ -80,4 +95,28 @@ The API includes basic error handling for:
 - OpenAI API errors
 - General server errors
 
-All errors will return a 500 status code with an error message. 
+All errors will return a 500 status code with an error message.
+
+## Testing the API
+
+Once your server is running, you can test the chat endpoint using curl:
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Hello"}'
+```
+
+You should receive a JSON response with the AI's reply:
+
+```json
+{
+  "reply": "Hi! It's good to hear from you. What's on your mind today?..."
+}
+```
+
+You can also test the health check endpoint:
+
+```bash
+curl http://127.0.0.1:8000/api/health
+```
