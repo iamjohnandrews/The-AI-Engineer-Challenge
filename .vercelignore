@@ -1,0 +1,12 @@
+api/
+*.py
+pyproject.toml
+requirements.txt
+Procfile
+railway.json
+runtime.txt
+.venv/
+__pycache__/
+*.pyc
+uv.lock
+
