@@ -1,40 +1,59 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ChatRequest, ChatResponse } from '@/types/chat';
+import OpenAI from 'openai';
 
 /**
- * Next.js API route handler that proxies chat requests to the FastAPI backend
- * This avoids CORS issues by making the request server-side
+ * Next.js API route handler that directly calls OpenAI
+ * This runs as a Vercel serverless function - no separate backend needed!
  */
 export async function POST(request: NextRequest) {
   try {
     const body: ChatRequest = await request.json();
     
-    // Get the backend URL from environment variable or default to localhost
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    // Get OpenAI API key from environment variable
+    const apiKey = process.env.OPENAI_API_KEY;
     
-    // Forward the request to the FastAPI backend
-    const response = await fetch(`${backendUrl}/api/chat`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+    if (!apiKey) {
       return NextResponse.json(
-        { error: errorData.detail || `HTTP error! status: ${response.status}` },
-        { status: response.status }
+        { error: 'OPENAI_API_KEY not configured. Please set it in Vercel environment variables.' },
+        { status: 500 }
       );
     }
 
-    const data: ChatResponse = await response.json();
-    return NextResponse.json(data);
+    // Initialize OpenAI client
+    const client = new OpenAI({ apiKey });
+
+    // Call OpenAI API directly
+    const response = await client.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: 'You are a supportive mental coach.' },
+        { role: 'user', content: body.message },
+      ],
+    });
+
+    const reply = response.choices[0]?.message?.content || 'Sorry, I could not generate a response.';
+    
+    return NextResponse.json({ reply } as ChatResponse);
   } catch (error) {
-    console.error('Error proxying chat request:', error);
+    console.error('Error calling OpenAI API:', error);
+    
+    // Provide helpful error messages
+    if (error instanceof Error) {
+      if (error.message.includes('API key')) {
+        return NextResponse.json(
+          { error: 'Invalid OpenAI API key. Please check your Vercel environment variables.' },
+          { status: 500 }
+        );
+      }
+      return NextResponse.json(
+        { error: `Error: ${error.message}` },
+        { status: 500 }
+      );
+    }
+    
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to process request' },
+      { error: 'Failed to process request. Please try again.' },
       { status: 500 }
     );
   }
