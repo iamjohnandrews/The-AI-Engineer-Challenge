@@ -1,17 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Configure API proxy for local development
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: process.env.NEXT_PUBLIC_API_URL 
-          ? `${process.env.NEXT_PUBLIC_API_URL}/api/:path*`
-          : 'http://localhost:8000/api/:path*',
-      },
-    ];
-  },
+  // Note: We're using Next.js API routes instead of rewrites for better control
+  // The API route at /app/api/chat/route.ts handles proxying to the backend
 };
 
 module.exports = nextConfig;
