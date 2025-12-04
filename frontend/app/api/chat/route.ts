@@ -24,6 +24,8 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   console.log('[API] POST /api/chat called - Direct OpenAI call (no proxy)');
+  console.log('[API] Request method:', request.method);
+  console.log('[API] Request URL:', request.url);
   try {
     const body: ChatRequest = await request.json();
     console.log('[API] Request body parsed:', { hasMessage: !!body.message });
