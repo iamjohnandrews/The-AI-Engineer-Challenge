@@ -15,7 +15,7 @@ A modern Next.js frontend application for the AI Mental Coach chat interface. Th
 ## Prerequisites
 
 - Node.js 18+ and npm (or yarn/pnpm)
-- The FastAPI backend running on `http://localhost:8000` (or configure `NEXT_PUBLIC_API_URL`)
+- OpenAI API key (set as `OPENAI_API_KEY` environment variable for production)
 
 ## Setup
 
@@ -29,12 +29,11 @@ A modern Next.js frontend application for the AI Mental Coach chat interface. Th
    npm install
    ```
 
-3. (Optional) Configure the API URL:
-   - By default, the frontend connects to `http://localhost:8000`
-   - To use a different backend URL, create a `.env.local` file:
-     ```bash
-     NEXT_PUBLIC_API_URL=http://your-backend-url:8000
-     ```
+3. (Optional) For local development, create a `.env.local` file with your OpenAI API key:
+   ```bash
+   OPENAI_API_KEY=your-openai-api-key-here
+   ```
+   Note: The frontend uses Next.js API routes that call OpenAI directly - no separate backend needed!
 
 ## Running the Application
 
@@ -87,13 +86,19 @@ frontend/
 └── next.config.js        # Next.js configuration
 ```
 
-## Integration with Backend
+## How It Works
 
-The frontend communicates with the FastAPI backend through the `/api/chat` endpoint. Make sure:
+The frontend uses Next.js API routes (serverless functions) that directly call OpenAI:
+- Frontend → `/api/chat` (Next.js API route) → OpenAI API
+- No separate backend needed! Everything runs on Vercel serverless functions.
 
-1. The backend is running on `http://localhost:8000` (or your configured URL)
-2. The backend has CORS enabled (already configured in the backend)
-3. The `OPENAI_API_KEY` environment variable is set in the backend environment
+For local development:
+- Set `OPENAI_API_KEY` in `.env.local`
+- The Next.js API route will use it automatically
+
+For production (Vercel):
+- Set `OPENAI_API_KEY` in Vercel environment variables
+- The API route will use it automatically
 
 ## Deployment
 
@@ -108,12 +113,13 @@ The application will automatically build and deploy on Vercel.
 
 ## Troubleshooting
 
-### Backend Connection Issues
+### API Connection Issues
 
 If you see connection errors:
-- Verify the backend is running: `curl http://localhost:8000/`
-- Check the `NEXT_PUBLIC_API_URL` environment variable
-- Ensure CORS is properly configured in the backend
+- Verify `OPENAI_API_KEY` is set in `.env.local` (local) or Vercel environment variables (production)
+- Check browser console for specific error messages
+- Verify the `/api/chat` route is deployed (check Vercel Functions tab)
+- Test the route directly: `curl https://your-vercel-url.vercel.app/api/chat`
 
 ### Build Errors
 
