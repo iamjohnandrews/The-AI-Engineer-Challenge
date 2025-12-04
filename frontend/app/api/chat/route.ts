@@ -11,6 +11,8 @@ import OpenAI from 'openai';
 // Use Node.js runtime for OpenAI SDK compatibility
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+// Increase timeout for OpenAI API calls (Vercel default is 10s, max is 60s for Pro)
+export const maxDuration = 30;
 
 // GET handler for testing
 export async function GET() {
@@ -46,14 +48,19 @@ export async function POST(request: NextRequest) {
     // Initialize OpenAI client
     const client = new OpenAI({ apiKey });
 
-    // Call OpenAI API directly
-    const response = await client.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: 'You are a supportive mental coach.' },
-        { role: 'user', content: body.message },
-      ],
-    });
+    // Call OpenAI API directly with timeout
+    const response = await Promise.race([
+      client.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: 'You are a supportive mental coach.' },
+          { role: 'user', content: body.message },
+        ],
+      }),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Request timeout: OpenAI API took too long to respond')), 25000)
+      )
+    ]) as Awaited<ReturnType<typeof client.chat.completions.create>>;
 
     const reply = response.choices[0]?.message?.content || 'Sorry, I could not generate a response.';
     
