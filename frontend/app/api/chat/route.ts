@@ -1,21 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ChatRequest, ChatResponse } from '@/types/chat';
 import OpenAI from 'openai';
 
-/**
- * Next.js API route handler that directly calls OpenAI
- * This runs as a Vercel serverless function - no separate backend needed!
- */
-
-// Runtime configuration for Vercel - ensures route is deployed as serverless function
+// Ensure this route is always treated as a serverless function
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 10;
 
-// Route segment config - ensures this route is always treated as dynamic
-export const revalidate = 0;
+interface ChatRequest {
+  message: string;
+}
 
-// GET handler for testing
+interface ChatResponse {
+  reply: string;
+}
+
 export async function GET() {
   return NextResponse.json({ 
     status: 'ok', 
@@ -24,12 +22,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  console.log('POST /api/chat called');
   try {
     const body: ChatRequest = await request.json();
-    console.log('Request body received:', { messageLength: body.message?.length });
     
-    // Validate request body
     if (!body.message || typeof body.message !== 'string') {
       return NextResponse.json(
         { error: 'Invalid request: message is required' },
@@ -37,25 +32,20 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Get OpenAI API key from environment variable
     const apiKey = process.env.OPENAI_API_KEY;
     
     if (!apiKey) {
-      console.error('OPENAI_API_KEY is not set in environment variables');
       return NextResponse.json(
         { error: 'OPENAI_API_KEY not configured. Please set it in Vercel environment variables.' },
         { status: 500 }
       );
     }
 
-    // Initialize OpenAI client with explicit base URL
     const client = new OpenAI({ 
       apiKey,
       baseURL: 'https://api.openai.com/v1'
     });
 
-    console.log('Calling OpenAI API...');
-    // Call OpenAI API directly
     const response = await client.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
@@ -65,13 +55,11 @@ export async function POST(request: NextRequest) {
     });
 
     const reply = response.choices[0]?.message?.content || 'Sorry, I could not generate a response.';
-    console.log('OpenAI response received, length:', reply.length);
     
-    return NextResponse.json({ reply } as ChatResponse);
+    return NextResponse.json({ reply });
   } catch (error) {
     console.error('Error calling OpenAI API:', error);
     
-    // Provide helpful error messages
     if (error instanceof Error) {
       if (error.message.includes('API key')) {
         return NextResponse.json(
