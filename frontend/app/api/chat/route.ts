@@ -7,10 +7,13 @@ import OpenAI from 'openai';
  * This runs as a Vercel serverless function - no separate backend needed!
  */
 
-// Runtime configuration for Vercel
+// Runtime configuration for Vercel - ensures route is deployed as serverless function
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 10;
+
+// Route segment config - ensures this route is always treated as dynamic
+export const revalidate = 0;
 
 // GET handler for testing
 export async function GET() {
