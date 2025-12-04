@@ -8,11 +8,8 @@ import OpenAI from 'openai';
  */
 
 // Runtime configuration for Vercel
-// Use Node.js runtime for OpenAI SDK compatibility
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-// Note: Vercel free tier has 10s timeout, Pro has up to 60s
-// If you're on free tier and getting timeouts, consider upgrading or optimizing the prompt
 export const maxDuration = 10;
 
 // GET handler for testing
@@ -84,4 +81,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
