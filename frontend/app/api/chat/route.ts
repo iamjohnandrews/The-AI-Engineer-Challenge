@@ -43,8 +43,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Initialize OpenAI client
-    const client = new OpenAI({ apiKey });
+    // Initialize OpenAI client with explicit base URL
+    const client = new OpenAI({ 
+      apiKey,
+      baseURL: 'https://api.openai.com/v1'
+    });
 
     // Call OpenAI API directly
     const response = await client.chat.completions.create({
