@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { ChatMessage } from '../types/chat.js';
-import { sendChatMessage } from '../lib/api.js';
+import { ChatMessage } from '../types/chat';
+import { sendChatMessage } from '../lib/api';
 
 export default function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([
