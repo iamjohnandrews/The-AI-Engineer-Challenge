@@ -10,10 +10,19 @@ export async function POST(request: NextRequest) {
   try {
     const body: ChatRequest = await request.json();
     
+    // Validate request body
+    if (!body.message || typeof body.message !== 'string') {
+      return NextResponse.json(
+        { error: 'Invalid request: message is required' },
+        { status: 400 }
+      );
+    }
+    
     // Get OpenAI API key from environment variable
     const apiKey = process.env.OPENAI_API_KEY;
     
     if (!apiKey) {
+      console.error('OPENAI_API_KEY is not set in environment variables');
       return NextResponse.json(
         { error: 'OPENAI_API_KEY not configured. Please set it in Vercel environment variables.' },
         { status: 500 }
