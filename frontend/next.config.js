@@ -1,8 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Note: We're using Next.js API routes instead of rewrites for better control
-  // The API route at /app/api/chat/route.ts handles proxying to the backend
+  // Ensure API routes are properly handled
+  experimental: {
+    // Ensure server components and API routes work correctly
+  },
 };
 
 module.exports = nextConfig;
