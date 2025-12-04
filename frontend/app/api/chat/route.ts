@@ -6,6 +6,20 @@ import OpenAI from 'openai';
  * Next.js API route handler that directly calls OpenAI
  * This runs as a Vercel serverless function - no separate backend needed!
  */
+
+// Runtime configuration for Vercel
+// Use Node.js runtime for OpenAI SDK compatibility
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
+// GET handler for testing
+export async function GET() {
+  return NextResponse.json({ 
+    status: 'ok', 
+    message: 'Chat API is working. Use POST to send messages.' 
+  });
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body: ChatRequest = await request.json();
