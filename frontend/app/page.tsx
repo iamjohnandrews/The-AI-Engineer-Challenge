@@ -1,6 +1,6 @@
 'use client';
 
-import ChatInterface from '../components/ChatInterface';
+import ChatInterface from '../components/ChatInterface.js';
 
 export default function Home() {
   return (

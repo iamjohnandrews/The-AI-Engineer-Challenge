@@ -2,8 +2,11 @@
 const nextConfig = {
   reactStrictMode: true,
   // Ensure API routes are properly handled
-  experimental: {
-    // Ensure server components and API routes work correctly
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+    };
+    return config;
   },
 };
 
