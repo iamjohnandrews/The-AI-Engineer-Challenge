@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
 // Ensure this route is always treated as a serverless function
+// VERSION: 2025-12-04 - Direct OpenAI call, no proxy
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 10;
