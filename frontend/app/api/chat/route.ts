@@ -48,19 +48,14 @@ export async function POST(request: NextRequest) {
     // Initialize OpenAI client
     const client = new OpenAI({ apiKey });
 
-    // Call OpenAI API directly with timeout
-    const response = await Promise.race([
-      client.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: 'You are a supportive mental coach.' },
-          { role: 'user', content: body.message },
-        ],
-      }),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Request timeout: OpenAI API took too long to respond')), 25000)
-      )
-    ]) as Awaited<ReturnType<typeof client.chat.completions.create>>;
+    // Call OpenAI API directly
+    const response = await client.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: 'You are a supportive mental coach.' },
+        { role: 'user', content: body.message },
+      ],
+    });
 
     const reply = response.choices[0]?.message?.content || 'Sorry, I could not generate a response.';
     
