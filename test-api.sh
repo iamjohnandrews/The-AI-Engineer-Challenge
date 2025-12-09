@@ -14,3 +14,5 @@ curl -X POST "$VERCEL_URL/api/chat" \
   -d '{"message": "Hello"}' \
   -w "\n\nHTTP Status: %{http_code}\n"
 
+
+

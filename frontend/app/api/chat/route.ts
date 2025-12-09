@@ -37,11 +37,29 @@ export async function POST(request: NextRequest) {
       );
     }
     
+    // Debug: Check all environment variables
+    console.log('[API] Environment check:');
+    console.log('[API] All process.env keys:', Object.keys(process.env).filter(k => k.includes('OPENAI') || k.includes('NEXT')));
+    console.log('[API] process.env.OPENAI_API_KEY exists:', 'OPENAI_API_KEY' in process.env);
+    
     const apiKey = process.env.OPENAI_API_KEY;
-    console.log('[API] API key check:', { hasKey: !!apiKey, keyLength: apiKey?.length || 0 });
+    console.log('[API] API key check:', { 
+      hasKey: !!apiKey, 
+      keyLength: apiKey?.length || 0,
+      keyType: typeof apiKey,
+      keyFirstChars: apiKey ? `${apiKey.substring(0, 10)}...` : 'N/A'
+    });
+    
+    // Also check NEXT_PUBLIC_ prefixed version (though it shouldn't be needed for server-side)
+    const publicApiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+    console.log('[API] NEXT_PUBLIC_OPENAI_API_KEY check:', { 
+      hasKey: !!publicApiKey, 
+      keyLength: publicApiKey?.length || 0 
+    });
     
     if (!apiKey) {
       console.error('[API] OPENAI_API_KEY is missing!');
+      console.error('[API] Available env vars:', Object.keys(process.env).slice(0, 50));
       return NextResponse.json(
         { error: 'OPENAI_API_KEY not configured. Please set it in Vercel environment variables.' },
         { status: 500 }
