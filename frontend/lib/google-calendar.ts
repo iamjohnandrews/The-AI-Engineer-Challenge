@@ -38,9 +38,13 @@ export async function listUpcomingEvents(
 ): Promise<CalendarEvent[]> {
   const calendar = getCalendarClient(accessToken);
   
+  const now = timeMin || new Date();
+  console.log('[Calendar] Current server time:', now.toISOString());
+  console.log('[Calendar] Filtering events from:', now.toISOString());
+  
   const response = await calendar.events.list({
     calendarId: 'primary',
-    timeMin: (timeMin || new Date()).toISOString(),
+    timeMin: now.toISOString(),
     maxResults,
     singleEvents: true,
     orderBy: 'startTime',
@@ -48,7 +52,28 @@ export async function listUpcomingEvents(
   
   const events = response.data.items || [];
   
-  return events.map((event) => ({
+  // Filter out past events (handles edge cases with all-day events)
+  const nowTimestamp = now.getTime();
+  const filteredEvents = events.filter((event) => {
+    const startStr = event.start?.dateTime || event.start?.date;
+    if (!startStr) return false;
+    
+    // For all-day events (date only), treat as start of that day
+    const eventStart = new Date(startStr);
+    
+    // For all-day events, add a day to account for the full day
+    if (!event.start?.dateTime && event.start?.date) {
+      // All-day event: include if the event date is today or future
+      const eventDate = new Date(startStr + 'T23:59:59');
+      return eventDate.getTime() >= nowTimestamp;
+    }
+    
+    return eventStart.getTime() >= nowTimestamp;
+  });
+  
+  console.log(`[Calendar] Filtered ${events.length} events to ${filteredEvents.length} (removed past events)`);
+  
+  return filteredEvents.map((event) => ({
     id: event.id || '',
     summary: event.summary || 'Untitled Event',
     description: event.description || undefined,
