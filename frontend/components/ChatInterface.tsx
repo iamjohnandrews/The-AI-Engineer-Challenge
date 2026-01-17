@@ -9,19 +9,28 @@ interface ChatInterfaceProps {
 }
 
 export default function ChatInterface({ onCalendarUpdate }: ChatInterfaceProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: '1',
-      role: 'assistant',
-      content: "Hello! I'm your supportive mental coach. How can I help you today? Whether you're dealing with stress, need motivation, want to build better habits, or boost your confidence, I'm here to support you.\n\n📅 I can also see your calendar and help you schedule wellness activities!",
-      timestamp: new Date(),
-    },
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Initialize welcome message on client side to avoid hydration mismatch
+  useEffect(() => {
+    if (!isInitialized) {
+      setMessages([
+        {
+          id: '1',
+          role: 'assistant',
+          content: "Hello! I'm your supportive mental coach. How can I help you today? Whether you're dealing with stress, need motivation, want to build better habits, or boost your confidence, I'm here to support you.\n\n📅 I can also see your calendar and help you schedule wellness activities!",
+          timestamp: new Date(),
+        },
+      ]);
+      setIsInitialized(true);
+    }
+  }, [isInitialized]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
