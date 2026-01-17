@@ -4,23 +4,27 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { CalendarEvent } from '../lib/google-calendar';
 
+interface CalendarPanelProps {
+  refreshTrigger?: number;
+}
+
 /**
  * CalendarPanel - Displays upcoming Google Calendar events
  * Shows a collapsible panel with the user's schedule
  */
-export default function CalendarPanel() {
+export default function CalendarPanel({ refreshTrigger }: CalendarPanelProps) {
   const { data: session } = useSession();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(true);
 
-  // Fetch events when session is available
+  // Fetch events when session is available or when refreshTrigger changes
   useEffect(() => {
     if (session?.accessToken) {
       fetchEvents();
     }
-  }, [session?.accessToken]);
+  }, [session?.accessToken, refreshTrigger]);
 
   const fetchEvents = async () => {
     setIsLoading(true);

@@ -1,10 +1,19 @@
 'use client';
 
+import { useState, useCallback } from 'react';
 import ChatInterface from '../components/ChatInterface';
 import GoogleAuthButton from '../components/GoogleAuthButton';
 import CalendarPanel from '../components/CalendarPanel';
 
 export default function Home() {
+  // State to trigger calendar refresh when AI creates an event
+  const [calendarRefreshTrigger, setCalendarRefreshTrigger] = useState(0);
+
+  // Callback to refresh calendar panel
+  const handleCalendarUpdate = useCallback(() => {
+    setCalendarRefreshTrigger((prev) => prev + 1);
+  }, []);
+
   return (
     <main className="flex min-h-screen flex-col items-center p-4 md:p-8">
       <div className="w-full max-w-6xl">
@@ -27,12 +36,12 @@ export default function Home() {
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Chat interface - takes more space */}
           <div className="flex-1 lg:flex-[2]">
-            <ChatInterface />
+            <ChatInterface onCalendarUpdate={handleCalendarUpdate} />
           </div>
 
           {/* Calendar panel - sidebar on larger screens */}
           <div className="lg:flex-1 lg:max-w-sm">
-            <CalendarPanel />
+            <CalendarPanel refreshTrigger={calendarRefreshTrigger} />
           </div>
         </div>
       </div>

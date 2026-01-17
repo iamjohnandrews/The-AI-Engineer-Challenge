@@ -4,12 +4,16 @@ import { useState, useRef, useEffect } from 'react';
 import { ChatMessage } from '../types/chat';
 import { sendChatMessage } from '../lib/api';
 
-export default function ChatInterface() {
+interface ChatInterfaceProps {
+  onCalendarUpdate?: () => void;
+}
+
+export default function ChatInterface({ onCalendarUpdate }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: '1',
       role: 'assistant',
-      content: "Hello! I'm your supportive mental coach. How can I help you today? Whether you're dealing with stress, need motivation, want to build better habits, or boost your confidence, I'm here to support you.",
+      content: "Hello! I'm your supportive mental coach. How can I help you today? Whether you're dealing with stress, need motivation, want to build better habits, or boost your confidence, I'm here to support you.\n\n📅 I can also see your calendar and help you schedule wellness activities!",
       timestamp: new Date(),
     },
   ]);
@@ -52,16 +56,21 @@ export default function ChatInterface() {
     setError(null);
 
     try {
-      const reply = await sendChatMessage(userMessage.content);
+      const response = await sendChatMessage(userMessage.content);
       
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: reply,
+        content: response.reply,
         timestamp: new Date(),
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
+
+      // If a calendar event was created, refresh the calendar panel
+      if (response.calendarAction?.success && onCalendarUpdate) {
+        onCalendarUpdate();
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to get response';
       setError(errorMessage);
